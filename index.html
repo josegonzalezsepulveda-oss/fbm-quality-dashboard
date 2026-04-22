@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Calidad APP FBM | Loss Prevention MELI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -110,7 +111,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 /* CARD GRIDS */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
 .grid-2-3{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px;}
-@media(max-width:900px){.grid-2,.grid-2-3{grid-template-columns:1fr;}}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+@media(max-width:900px){.grid-2,.grid-2-3,.grid-3,.grid-4{grid-template-columns:1fr;}}
+@media(min-width:901px) and (max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr);}}
 .card{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.07);}
 .card-full{margin-bottom:18px;}
 .card-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
@@ -129,9 +133,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .no-data{text-align:center;padding:36px 20px;color:var(--muted);font-size:12px;}
 
 /* DONUT LEGEND */
-.donut-wrap{display:flex;align-items:center;gap:20px;}
-.donut-chart{flex:0 0 180px;}
-.donut-legend{flex:1;}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.donut-chart{width:160px;height:160px;flex-shrink:0;}
+.donut-legend{width:100%;}
 .legend-item{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
 .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .legend-lbl{font-size:12px;color:var(--text);}
@@ -291,6 +295,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <span class="period-indicator" id="period-indicator" style="display:none;margin-left:auto;"></span>
   </div>
 
+  <!-- KPI CARDS -->
+  <div class="kpi-grid" id="kpi-grid"></div>
+
   <!-- RESUMEN EJECUTIVO -->
   <div class="card card-full" style="margin-bottom:18px;">
     <div class="card-hdr">
@@ -303,7 +310,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
   <!-- BIGQUERY CONEXIÓN DIRECTA -->
   <div class="bq-bar" id="bq-bar">
-    <!-- DESCONECTADO -->
     <div class="bq-row" id="bq-dis">
       <div class="bq-brand">
         <span class="bq-dot off" id="bq-dot"></span>
@@ -315,7 +321,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <button class="btn-connect" onclick="connectBQ()">&#128279; Conectar Google</button>
       <a class="bq-help" href="https://console.cloud.google.com/apis/credentials" target="_blank" title="Abrir Google Cloud Console">&#128712; Cómo obtener Client ID</a>
     </div>
-    <!-- CONECTADO -->
     <div class="bq-row" id="bq-con" style="display:none;">
       <div class="bq-brand">
         <span class="bq-dot on"></span>
@@ -326,35 +331,47 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div id="bq-msg"></div>
       <button class="btn-disc" onclick="disconnectBQ()" style="margin-left:auto;">Desconectar</button>
     </div>
-    <!-- PROGRESO QUERIES -->
     <div class="bq-steps" id="bq-steps" style="display:none;"></div>
   </div>
-
-  <!-- KPI CARDS -->
-  <div class="kpi-grid" id="kpi-grid"></div>
 
   <!-- ═══════════════════════════════════════════════════ -->
   <!-- SECCIÓN: INVESTIGACIONES Y ANÁLISIS DE CASOS       -->
   <!-- ═══════════════════════════════════════════════════ -->
   <p class="sec-title">Investigaciones y Análisis de Casos</p>
 
-  <!-- Volumen + Tendencia -->
-  <div class="grid-2-3" style="grid-template-columns:3fr 2fr;">
+  <!-- 4 gráficos en una fila -->
+  <div class="grid-4">
     <div class="card">
       <div class="card-hdr">
-        <div><div class="card-title">Volumen de Investigaciones por País</div>
-          <div class="card-sub" id="sub-volumen">Desglose por tipo de análisis</div></div>
-        <span class="badge b-blue" id="badge-volumen">Q1-Q2</span>
+        <div><div class="card-title">Volumen por País</div>
+          <div class="card-sub" id="sub-volumen">Por tipo de análisis</div></div>
+        <span class="badge b-blue" id="badge-volumen">Total</span>
       </div>
-      <div class="chart-wrap" id="wrap-volumen"><canvas id="ch-volumen" height="220"></canvas></div>
+      <div class="chart-wrap" id="wrap-volumen"><canvas id="ch-volumen" height="240"></canvas></div>
     </div>
     <div class="card">
       <div class="card-hdr">
         <div><div class="card-title">Tendencia Mensual</div>
-          <div class="card-sub">Casos cargados por mes y país</div></div>
+          <div class="card-sub">Casos por mes y país</div></div>
         <span class="badge b-gray" id="badge-tend">2026</span>
       </div>
-      <div class="chart-wrap" id="wrap-tendencia"><canvas id="ch-tendencia" height="220"></canvas></div>
+      <div class="chart-wrap" id="wrap-tendencia"><canvas id="ch-tendencia" height="240"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Carpeta de Investigación</div>
+          <div class="card-sub">Solo investigaciones &middot; DRIVE_URL</div></div>
+        <span class="badge b-green">Drive URL</span>
+      </div>
+      <div class="chart-wrap" id="wrap-carpeta"><canvas id="ch-carpeta" height="240"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Divergencias Fecha vs Estado</div>
+          <div class="card-sub">Inconsistencias por país</div></div>
+        <span class="badge b-red">Alertas</span>
+      </div>
+      <div class="chart-wrap" id="wrap-divergencias"><canvas id="ch-divergencias" height="240"></canvas></div>
     </div>
   </div>
 
@@ -365,27 +382,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <div class="card-sub">Volumen y % de representación por país</div></div>
       <span class="badge b-accent" id="badge-periodo">Período</span>
     </div>
-    <div class="chart-wrap" id="wrap-periodo"><canvas id="ch-periodo" height="130"></canvas></div>
-  </div>
-
-  <!-- Carpeta + Divergencias -->
-  <div class="grid-2" style="margin-bottom:18px;">
-    <div class="card">
-      <div class="card-hdr">
-        <div><div class="card-title">Carpeta de Investigación (Drive)</div>
-          <div class="card-sub">Solo investigaciones &middot; validado por DRIVE_URL</div></div>
-        <span class="badge b-green">Drive URL</span>
-      </div>
-      <div class="chart-wrap" id="wrap-carpeta"><canvas id="ch-carpeta" height="200"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr">
-        <div><div class="card-title">Divergencias: Fecha Finalización vs Estado</div>
-          <div class="card-sub">Inconsistencias detectadas por país</div></div>
-        <span class="badge b-red">Alertas</span>
-      </div>
-      <div class="chart-wrap" id="wrap-divergencias"><canvas id="ch-divergencias" height="200"></canvas></div>
-    </div>
+    <div class="chart-wrap" id="wrap-periodo"><canvas id="ch-periodo" height="120"></canvas></div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════ -->
@@ -393,37 +390,35 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <!-- ═══════════════════════════════════════════════════ -->
   <p class="sec-title">Implicados y Medidas Disciplinarias</p>
 
-  <!-- Asignación + Medidas donut -->
-  <div class="grid-2">
+  <!-- 3 gráficos en una fila: Medidas | Implicados | Pendientes -->
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Estado de Medidas Disciplinarias</div>
+          <div class="card-sub">Distribución global de acciones</div></div>
+        <span class="badge b-orange">Acciones</span>
+      </div>
+      <div class="donut-wrap" id="wrap-medidas">
+        <div class="donut-chart"><canvas id="ch-medidas"></canvas></div>
+        <div class="donut-legend" id="medidas-legend"></div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-hdr">
         <div><div class="card-title">Asignación de Implicados por País</div>
           <div class="card-sub">Casos con / sin implicados registrados</div></div>
         <span class="badge b-blue">Implicados</span>
       </div>
-      <div class="chart-wrap" id="wrap-implicados"><canvas id="ch-implicados" height="200"></canvas></div>
+      <div class="chart-wrap" id="wrap-implicados"><canvas id="ch-implicados" height="240"></canvas></div>
     </div>
     <div class="card">
       <div class="card-hdr">
-        <div><div class="card-title">Estado de Medidas Disciplinarias</div>
-          <div class="card-sub">Distribución global de acciones aplicadas</div></div>
-        <span class="badge b-orange">Acciones</span>
+        <div><div class="card-title">Pendientes de Acción Disciplinaria</div>
+          <div class="card-sub">Implicados sin medida aplicada</div></div>
+        <span class="badge b-orange">Pendiente</span>
       </div>
-      <div class="donut-wrap" id="wrap-medidas">
-        <div class="donut-chart"><canvas id="ch-medidas" width="180" height="180"></canvas></div>
-        <div class="donut-legend" id="medidas-legend"></div>
-      </div>
+      <div class="chart-wrap" id="wrap-pendientes"><canvas id="ch-pendientes" height="240"></canvas></div>
     </div>
-  </div>
-
-  <!-- Pendientes -->
-  <div class="card card-full">
-    <div class="card-hdr">
-      <div><div class="card-title">Pendientes de Acción Disciplinaria</div>
-        <div class="card-sub">Implicados sin medida aplicada, por país y estado</div></div>
-      <span class="badge b-orange">Pendiente</span>
-    </div>
-    <div class="chart-wrap" id="wrap-pendientes"><canvas id="ch-pendientes" height="160"></canvas></div>
   </div>
 
 </main>
@@ -567,12 +562,12 @@ const DATA = {
     {mes:"2026-04",site:"MCO",tipo:"análisis",total:59},
     {mes:"2026-04",site:"MLA",tipo:"análisis",total:261},
     {mes:"2026-04",site:"MLA",tipo:"investigaciones",total:29},
-    {mes:"2026-04",site:"MLB",tipo:"análisis",total:795},
-    {mes:"2026-04",site:"MLB",tipo:"investigaciones",total:84},
+    {mes:"2026-04",site:"MLB",tipo:"análisis",total:798},
+    {mes:"2026-04",site:"MLB",tipo:"investigaciones",total:85},
     {mes:"2026-04",site:"MLC",tipo:"análisis",total:1},
     {mes:"2026-04",site:"MLC",tipo:"investigaciones",total:9},
     {mes:"2026-04",site:"MLM",tipo:"análisis",total:268},
-    {mes:"2026-04",site:"MLM",tipo:"investigaciones",total:17}
+    {mes:"2026-04",site:"MLM",tipo:"investigaciones",total:19}
   ],
 
   implicados: [
@@ -687,12 +682,12 @@ const DATA = {
     {mes:"2026-04",site:"MCO",tipo:"análisis",con_implicados:0,sin_implicados:59},
     {mes:"2026-04",site:"MLA",tipo:"análisis",con_implicados:119,sin_implicados:142},
     {mes:"2026-04",site:"MLA",tipo:"investigaciones",con_implicados:9,sin_implicados:20},
-    {mes:"2026-04",site:"MLB",tipo:"análisis",con_implicados:737,sin_implicados:58},
-    {mes:"2026-04",site:"MLB",tipo:"investigaciones",con_implicados:58,sin_implicados:26},
+    {mes:"2026-04",site:"MLB",tipo:"análisis",con_implicados:740,sin_implicados:58},
+    {mes:"2026-04",site:"MLB",tipo:"investigaciones",con_implicados:59,sin_implicados:26},
     {mes:"2026-04",site:"MLC",tipo:"análisis",con_implicados:0,sin_implicados:1},
     {mes:"2026-04",site:"MLC",tipo:"investigaciones",con_implicados:9,sin_implicados:0},
     {mes:"2026-04",site:"MLM",tipo:"análisis",con_implicados:115,sin_implicados:153},
-    {mes:"2026-04",site:"MLM",tipo:"investigaciones",con_implicados:8,sin_implicados:9}
+    {mes:"2026-04",site:"MLM",tipo:"investigaciones",con_implicados:10,sin_implicados:9}
   ],
 
   medidas: [
@@ -984,18 +979,18 @@ const DATA = {
     {mes:"2026-04",site:"MLA",tipo:"investigaciones",estado:"en progreso",total:7},
     {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"Sin Estado",total:7},
     {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"aplicada",total:316},
-    {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"en progreso",total:388},
+    {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"en progreso",total:391},
     {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"no aplicada",total:89},
     {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"Sin Estado",total:13},
     {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"aplicada",total:13},
-    {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"en progreso",total:62},
+    {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"en progreso",total:64},
     {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"no aplicada",total:15},
     {mes:"2026-04",site:"MLC",tipo:"investigaciones",estado:"Sin Estado",total:1},
     {mes:"2026-04",site:"MLC",tipo:"investigaciones",estado:"aplicada",total:10},
     {mes:"2026-04",site:"MLM",tipo:"análisis",estado:"aplicada",total:47},
     {mes:"2026-04",site:"MLM",tipo:"análisis",estado:"en progreso",total:81},
     {mes:"2026-04",site:"MLM",tipo:"investigaciones",estado:"Sin Estado",total:15},
-    {mes:"2026-04",site:"MLM",tipo:"investigaciones",estado:"aplicada",total:12},
+    {mes:"2026-04",site:"MLM",tipo:"investigaciones",estado:"aplicada",total:14},
     {mes:"2026-04",site:"MLM",tipo:"investigaciones",estado:"en progreso",total:3},
     {mes:"2026-04",site:"MLM",tipo:"investigaciones",estado:"no aplicada",total:2}
   ],
@@ -1052,9 +1047,9 @@ const DATA = {
     {mes:"2026-03",site:"MLC",tipo:"investigaciones",con_carpeta:7,sin_carpeta:0,total:7},
     {mes:"2026-03",site:"MLM",tipo:"investigaciones",con_carpeta:38,sin_carpeta:3,total:41},
     {mes:"2026-04",site:"MLA",tipo:"investigaciones",con_carpeta:3,sin_carpeta:26,total:29},
-    {mes:"2026-04",site:"MLB",tipo:"investigaciones",con_carpeta:73,sin_carpeta:11,total:84},
+    {mes:"2026-04",site:"MLB",tipo:"investigaciones",con_carpeta:73,sin_carpeta:12,total:85},
     {mes:"2026-04",site:"MLC",tipo:"investigaciones",con_carpeta:9,sin_carpeta:0,total:9},
-    {mes:"2026-04",site:"MLM",tipo:"investigaciones",con_carpeta:12,sin_carpeta:5,total:17}
+    {mes:"2026-04",site:"MLM",tipo:"investigaciones",con_carpeta:12,sin_carpeta:7,total:19}
   ],
 
   divergencias: [
@@ -1168,12 +1163,12 @@ const DATA = {
     {mes:"2026-04",site:"MCO",tipo:"análisis",total:59,tipo_div:"fecha_sin_estado_final"},
     {mes:"2026-04",site:"MLA",tipo:"análisis",total:261,tipo_div:"fecha_sin_estado_final"},
     {mes:"2026-04",site:"MLA",tipo:"investigaciones",total:29,tipo_div:"fecha_sin_estado_final"},
-    {mes:"2026-04",site:"MLB",tipo:"análisis",total:795,tipo_div:"fecha_sin_estado_final"},
-    {mes:"2026-04",site:"MLB",tipo:"investigaciones",total:84,tipo_div:"fecha_sin_estado_final"},
+    {mes:"2026-04",site:"MLB",tipo:"análisis",total:798,tipo_div:"fecha_sin_estado_final"},
+    {mes:"2026-04",site:"MLB",tipo:"investigaciones",total:85,tipo_div:"fecha_sin_estado_final"},
     {mes:"2026-04",site:"MLC",tipo:"análisis",total:1,tipo_div:"fecha_sin_estado_final"},
     {mes:"2026-04",site:"MLC",tipo:"investigaciones",total:9,tipo_div:"fecha_sin_estado_final"},
     {mes:"2026-04",site:"MLM",tipo:"análisis",total:268,tipo_div:"fecha_sin_estado_final"},
-    {mes:"2026-04",site:"MLM",tipo:"investigaciones",total:17,tipo_div:"fecha_sin_estado_final"}
+    {mes:"2026-04",site:"MLM",tipo:"investigaciones",total:19,tipo_div:"fecha_sin_estado_final"}
   ],
 
   tendencia: [
@@ -1288,12 +1283,12 @@ const DATA = {
     {mes:"2026-04",mes_corto:"Apr",site:"MCO",tipo:"análisis",total:59},
     {mes:"2026-04",mes_corto:"Apr",site:"MLA",tipo:"análisis",total:261},
     {mes:"2026-04",mes_corto:"Apr",site:"MLA",tipo:"investigaciones",total:29},
-    {mes:"2026-04",mes_corto:"Apr",site:"MLB",tipo:"análisis",total:795},
-    {mes:"2026-04",mes_corto:"Apr",site:"MLB",tipo:"investigaciones",total:84},
+    {mes:"2026-04",mes_corto:"Apr",site:"MLB",tipo:"análisis",total:798},
+    {mes:"2026-04",mes_corto:"Apr",site:"MLB",tipo:"investigaciones",total:85},
     {mes:"2026-04",mes_corto:"Apr",site:"MLC",tipo:"análisis",total:1},
     {mes:"2026-04",mes_corto:"Apr",site:"MLC",tipo:"investigaciones",total:9},
     {mes:"2026-04",mes_corto:"Apr",site:"MLM",tipo:"análisis",total:268},
-    {mes:"2026-04",mes_corto:"Apr",site:"MLM",tipo:"investigaciones",total:17}
+    {mes:"2026-04",mes_corto:"Apr",site:"MLM",tipo:"investigaciones",total:19}
   ],
 
   pendientes: [
@@ -1369,8 +1364,8 @@ const DATA = {
     {mes:"2025-09",site:"MLM",tipo:"investigaciones",estado:"Sin Asignar",total:12},
     {mes:"2025-09",site:"MLM",tipo:"análisis",estado:"Sin Asignar",total:4},
     {mes:"2025-10",site:"MCO",tipo:"análisis",estado:"en progreso",total:1},
-    {mes:"2025-10",site:"MLA",tipo:"investigaciones",estado:"Sin Asignar",total:2},
     {mes:"2025-10",site:"MLA",tipo:"análisis",estado:"Sin Asignar",total:2},
+    {mes:"2025-10",site:"MLA",tipo:"investigaciones",estado:"Sin Asignar",total:2},
     {mes:"2025-10",site:"MLB",tipo:"investigaciones",estado:"Sin Asignar",total:29},
     {mes:"2025-10",site:"MLB",tipo:"análisis",estado:"en progreso",total:20},
     {mes:"2025-10",site:"MLB",tipo:"análisis",estado:"Sin Asignar",total:8},
@@ -1442,8 +1437,8 @@ const DATA = {
     {mes:"2026-04",site:"MLA",tipo:"investigaciones",estado:"en progreso",total:7},
     {mes:"2026-04",site:"MLA",tipo:"investigaciones",estado:"Sin Asignar",total:6},
     {mes:"2026-04",site:"MLA",tipo:"análisis",estado:"Sin Asignar",total:4},
-    {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"en progreso",total:388},
-    {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"en progreso",total:62},
+    {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"en progreso",total:391},
+    {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"en progreso",total:64},
     {mes:"2026-04",site:"MLB",tipo:"investigaciones",estado:"Sin Asignar",total:13},
     {mes:"2026-04",site:"MLB",tipo:"análisis",estado:"Sin Asignar",total:7},
     {mes:"2026-04",site:"MLC",tipo:"investigaciones",estado:"Sin Asignar",total:1},
@@ -1490,9 +1485,15 @@ function noData(wrapId, msg='Sin datos para el período seleccionado') {
   if(w) w.innerHTML = `<div class="no-data">&#128226; ${msg}</div>`;
 }
 
+// Registrar plugin datalabels (desactivado globalmente, activar por chart)
+Chart.register(ChartDataLabels);
+
 const CD = {
   responsive:true, maintainAspectRatio:true,
-  plugins:{legend:{labels:{font:{family:"Inter",size:11},boxWidth:12,padding:12}}},
+  plugins:{
+    legend:{labels:{font:{family:"Inter",size:11},boxWidth:12,padding:12}},
+    datalabels:{display:false},
+  },
 };
 
 // ============================================================
@@ -1654,7 +1655,16 @@ function renderVolumen() {
     options:{...CD, scales:{
       x:{stacked:true,grid:{display:false},ticks:{font:{family:"Inter",size:11}}},
       y:{stacked:true,ticks:{font:{family:"Inter",size:11}}}
-    }, plugins:{...CD.plugins,tooltip:{callbacks:{footer:items=>'Total: '+fN(items.reduce((s,i)=>s+i.raw,0))}}}}
+    }, plugins:{...CD.plugins,
+      tooltip:{callbacks:{footer:items=>'Total: '+fN(items.reduce((s,i)=>s+i.raw,0))}},
+      datalabels:{
+        display: ctx => (ctx.dataset.data[ctx.dataIndex]||0) > 0,
+        color: ctx => ctx.dataset.backgroundColor === '#F5C518' ? '#1A1A2E' : '#fff',
+        font: {family:'Inter', size:9, weight:'700'},
+        formatter: v => v > 0 ? fN(v) : '',
+        anchor:'center', align:'center', clamp:true,
+      }
+    }}
   });
 }
 
@@ -1721,7 +1731,7 @@ function renderMedidas() {
   ch['medidas'] = new Chart(document.getElementById('ch-medidas'),{
     type:'doughnut',
     data:{labels:activos, datasets:[{data:activos.map(e=>tots[e]),backgroundColor:activos.map(e=>estadoColor(e)),borderWidth:2,hoverOffset:6}]},
-    options:{responsive:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>` ${i.label}: ${fN(i.raw)} (${fP(i.raw*100/total)})`}}}}
+    options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{display:false},datalabels:{display:false},tooltip:{callbacks:{label:i=>` ${i.label}: ${fN(i.raw)} (${fP(i.raw*100/total)})`}}}}
   });
 
   document.getElementById('medidas-legend').innerHTML = activos.map(e=>`
