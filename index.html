@@ -396,6 +396,45 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SECCIÓN: COMPLETITUD DE INVESTIGACIONES            -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <p class="sec-title">Completitud de Investigaciones</p>
+  <div class="grid-4">
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Sin Antecedentes</div>
+          <div class="card-sub">Investigaciones sin campo cargado</div></div>
+        <span class="badge b-red">Antecedentes</span>
+      </div>
+      <div class="chart-wrap" id="wrap-c-antecedentes"><canvas id="ch-c-antecedentes" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Sin Acta de Entrevista</div>
+          <div class="card-sub">Investigaciones sin URL cargada</div></div>
+        <span class="badge b-red">Acta</span>
+      </div>
+      <div class="chart-wrap" id="wrap-c-acta"><canvas id="ch-c-acta" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Sin Conclusión</div>
+          <div class="card-sub">Investigaciones sin campo cargado</div></div>
+        <span class="badge b-red">Conclusión</span>
+      </div>
+      <div class="chart-wrap" id="wrap-c-conclusion"><canvas id="ch-c-conclusion" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Sin Plan / Recomendación</div>
+          <div class="card-sub">Investigaciones sin campo cargado</div></div>
+        <span class="badge b-red">Plan</span>
+      </div>
+      <div class="chart-wrap" id="wrap-c-plan"><canvas id="ch-c-plan" height="220"></canvas></div>
+    </div>
+  </div>
+
 </main>
 
 <!-- MODAL -->
@@ -1422,6 +1461,63 @@ const DATA = {
     {mes:"2026-04",site:"MLM",tipo:"investigaciones",estado:"en progreso",total:3}
   ],
 
+  completitud: [
+    {mes:"2025-04",site:"MCO",tipo:"investigaciones",sin_antecedentes:0,sin_acta:162,sin_conclusion:0,sin_plan:150,total:162},
+    {mes:"2025-04",site:"MLA",tipo:"investigaciones",sin_antecedentes:19,sin_acta:824,sin_conclusion:2,sin_plan:823,total:824},
+    {mes:"2025-04",site:"MLB",tipo:"investigaciones",sin_antecedentes:665,sin_acta:1096,sin_conclusion:440,sin_plan:1105,total:1108},
+    {mes:"2025-04",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:4,sin_conclusion:0,sin_plan:3,total:4},
+    {mes:"2025-04",site:"MLM",tipo:"investigaciones",sin_antecedentes:1138,sin_acta:1520,sin_conclusion:66,sin_plan:1522,total:1527},
+    {mes:"2025-05",site:"MCO",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:0,sin_plan:0,total:2},
+    {mes:"2025-05",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:169,sin_conclusion:0,sin_plan:169,total:169},
+    {mes:"2025-05",site:"MLB",tipo:"investigaciones",sin_antecedentes:67,sin_acta:86,sin_conclusion:66,sin_plan:87,total:94},
+    {mes:"2025-05",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:0,sin_plan:2,total:2},
+    {mes:"2025-05",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:18,sin_conclusion:1,sin_plan:16,total:35},
+    {mes:"2025-06",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:6,sin_conclusion:0,sin_plan:3,total:6},
+    {mes:"2025-06",site:"MLB",tipo:"investigaciones",sin_antecedentes:79,sin_acta:149,sin_conclusion:84,sin_plan:163,total:170},
+    {mes:"2025-06",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:26,sin_conclusion:0,sin_plan:26,total:28},
+    {mes:"2025-06",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:5,sin_conclusion:2,sin_plan:11,total:17},
+    {mes:"2025-07",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:0,sin_plan:1,total:2},
+    {mes:"2025-07",site:"MLB",tipo:"investigaciones",sin_antecedentes:121,sin_acta:151,sin_conclusion:126,sin_plan:159,total:170},
+    {mes:"2025-07",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:3,sin_conclusion:0,sin_plan:2,total:3},
+    {mes:"2025-07",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:36,sin_conclusion:1,sin_plan:49,total:58},
+    {mes:"2025-08",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:0,sin_plan:1,total:2},
+    {mes:"2025-08",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:33,sin_conclusion:11,sin_plan:51,total:70},
+    {mes:"2025-08",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:9,sin_conclusion:0,sin_plan:9,total:10},
+    {mes:"2025-08",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:225,sin_conclusion:81,sin_plan:227,total:241},
+    {mes:"2025-09",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:3,sin_conclusion:0,sin_plan:2,total:3},
+    {mes:"2025-09",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:32,sin_conclusion:9,sin_plan:40,total:47},
+    {mes:"2025-09",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:0,sin_plan:2,total:4},
+    {mes:"2025-09",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:13,sin_conclusion:1,sin_plan:13,total:27},
+    {mes:"2025-10",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:0,sin_plan:3,total:3},
+    {mes:"2025-10",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:45,sin_conclusion:9,sin_plan:51,total:78},
+    {mes:"2025-10",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:4,sin_conclusion:0,sin_plan:5,total:5},
+    {mes:"2025-10",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:4,sin_conclusion:2,sin_plan:14,total:20},
+    {mes:"2025-11",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:1,sin_plan:2,total:2},
+    {mes:"2025-11",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:70,sin_conclusion:30,sin_plan:81,total:100},
+    {mes:"2025-11",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:11,sin_conclusion:4,sin_plan:17,total:30},
+    {mes:"2025-12",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:5,sin_conclusion:0,sin_plan:5,total:5},
+    {mes:"2025-12",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:52,sin_conclusion:17,sin_plan:60,total:78},
+    {mes:"2025-12",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:13,sin_conclusion:1,sin_plan:13,total:13},
+    {mes:"2025-12",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:19,sin_conclusion:8,sin_plan:33,total:36},
+    {mes:"2026-01",site:"MCO",tipo:"investigaciones",sin_antecedentes:0,sin_acta:7,sin_conclusion:0,sin_plan:6,total:7},
+    {mes:"2026-01",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:6,sin_conclusion:0,sin_plan:6,total:6},
+    {mes:"2026-01",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:58,sin_conclusion:20,sin_plan:78,total:87},
+    {mes:"2026-01",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:2,sin_conclusion:0,sin_plan:2,total:2},
+    {mes:"2026-01",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:58,sin_conclusion:9,sin_plan:63,total:84},
+    {mes:"2026-02",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:5,sin_conclusion:1,sin_plan:5,total:5},
+    {mes:"2026-02",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:37,sin_conclusion:12,sin_plan:49,total:56},
+    {mes:"2026-02",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:5,sin_conclusion:0,sin_plan:5,total:5},
+    {mes:"2026-02",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:57,sin_conclusion:22,sin_plan:64,total:75},
+    {mes:"2026-03",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:12,sin_conclusion:3,sin_plan:11,total:12},
+    {mes:"2026-03",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:61,sin_conclusion:25,sin_plan:90,total:100},
+    {mes:"2026-03",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:6,sin_conclusion:1,sin_plan:7,total:7},
+    {mes:"2026-03",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:17,sin_conclusion:10,sin_plan:20,total:41},
+    {mes:"2026-04",site:"MLA",tipo:"investigaciones",sin_antecedentes:0,sin_acta:29,sin_conclusion:4,sin_plan:29,total:29},
+    {mes:"2026-04",site:"MLB",tipo:"investigaciones",sin_antecedentes:0,sin_acta:60,sin_conclusion:26,sin_plan:78,total:85},
+    {mes:"2026-04",site:"MLC",tipo:"investigaciones",sin_antecedentes:0,sin_acta:9,sin_conclusion:0,sin_plan:9,total:9},
+    {mes:"2026-04",site:"MLM",tipo:"investigaciones",sin_antecedentes:0,sin_acta:12,sin_conclusion:11,sin_plan:16,total:19}
+  ],
+
 };
 // ============================================================
 
@@ -1887,6 +1983,58 @@ function renderResumen() {
 // ============================================================
 // ---- REFRESH ----
 // ============================================================
+function renderCompletitud() {
+  const fs   = filteredSites();
+  const data = applyTF(applyDF(DATA.completitud||[])).filter(d=>fs.includes(d.site));
+
+  const metricas = [
+    {key:'sin_antecedentes', id:'antecedentes'},
+    {key:'sin_acta',         id:'acta'},
+    {key:'sin_conclusion',   id:'conclusion'},
+    {key:'sin_plan',         id:'plan'},
+  ];
+
+  metricas.forEach(({key, id}) => {
+    destroyCh('c-'+id);
+    const agg = fs.map(s=>{
+      const rows = data.filter(d=>d.site===s);
+      const sin  = rows.reduce((a,d)=>a+(d[key]||0),0);
+      const tot  = rows.reduce((a,d)=>a+(d.total||0),0);
+      return {site:s, sin, con: tot - sin, tot};
+    }).filter(d=>d.tot>0);
+
+    if(!agg.length){ noData('wrap-c-'+id); return; }
+
+    ch['c-'+id] = new Chart(document.getElementById('ch-c-'+id),{
+      type:'bar',
+      data:{
+        labels: agg.map(d=>d.site),
+        datasets:[
+          {label:'Sin campo', data:agg.map(d=>d.sin), backgroundColor:'#EF5350', borderRadius:4},
+          {label:'Con campo', data:agg.map(d=>d.con), backgroundColor:'#00C853', borderRadius:4},
+        ]
+      },
+      options:{...CD, indexAxis:'y',
+        scales:{
+          x:{stacked:true, ticks:{font:{family:"Inter",size:10}}, beginAtZero:true},
+          y:{stacked:true, grid:{display:false}, ticks:{font:{family:"Inter",size:11}}},
+        },
+        plugins:{...CD.plugins,
+          tooltip:{callbacks:{
+            footer: items => {
+              const idx = items[0].dataIndex;
+              const tot = agg[idx].tot;
+              const sin = agg[idx].sin;
+              const pct = tot ? (sin*100/tot).toFixed(1) : 0;
+              return `Sin campo: ${fN(sin)} (${pct}% del total)`;
+            }
+          }}
+        }
+      }
+    });
+  });
+}
+
 function refresh() {
   renderKPIs();
   renderVolumen();
@@ -1898,6 +2046,7 @@ function refresh() {
   renderPeriodo();
   renderPendientes();
   renderResumen();
+  renderCompletitud();
 
   const lbl = getPeriodLabel();
   document.getElementById('lbl-periodo').textContent  = lbl;
