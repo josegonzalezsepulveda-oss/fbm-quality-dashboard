@@ -80,6 +80,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pval:hover{border-color:var(--accent-d);color:var(--accent-d);}
 .pval.active{background:var(--accent);color:var(--primary);border-color:var(--accent);}
 
+/* Date range picker */
+.rango-picker{display:none;align-items:center;gap:6px;flex-wrap:wrap;}
+.rango-input{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;
+  color:var(--text);padding:4px 9px;font-size:11px;font-family:'Inter',sans-serif;
+  outline:none;cursor:pointer;transition:border-color .15s;}
+.rango-input:focus{border-color:var(--primary);}
+.rango-sep{font-size:13px;color:var(--muted);font-weight:600;}
+.rango-apply{padding:4px 13px;border-radius:8px;font-size:11px;font-weight:700;
+  cursor:pointer;border:none;background:var(--primary);color:#fff;transition:all .15s;}
+.rango-apply:hover{background:var(--primary-l);}
+.rango-clear{padding:3px 9px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;
+  border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;}
+.rango-clear:hover{border-color:var(--err);color:var(--err);}
+
 .pdivider{color:var(--border);font-size:22px;font-weight:200;line-height:1;padding:0 2px;}
 .period-indicator{font-size:11px;color:var(--primary);font-weight:700;
   background:rgba(30,58,95,.08);padding:3px 10px;border-radius:10px;white-space:nowrap;}
@@ -346,8 +360,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <button class="pchip"        data-pt="semestre"  onclick="setPType('semestre')">Semestre</button>
     <button class="pchip"        data-pt="trimestre" onclick="setPType('trimestre')">Trimestre</button>
     <button class="pchip"        data-pt="mes"       onclick="setPType('mes')">Mes</button>
+    <button class="pchip"        data-pt="rango"     onclick="setPType('rango')">&#128197; Rango</button>
     <span class="pdivider" id="pdivider" style="display:none">›</span>
     <div id="pvals" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;"></div>
+    <!-- Date range picker -->
+    <div class="rango-picker" id="rango-picker">
+      <input type="date" id="rango-from" class="rango-input" title="Fecha inicio">
+      <span class="rango-sep">→</span>
+      <input type="date" id="rango-to"   class="rango-input" title="Fecha fin">
+      <button class="rango-apply" onclick="applyRango()">Aplicar</button>
+      <button class="rango-clear" onclick="setPType('all')">&#10005; Limpiar</button>
+    </div>
     <span class="period-indicator" id="period-indicator" style="display:none;margin-left:auto;"></span>
   </div>
 
@@ -2493,6 +2516,16 @@ function getActiveMeses() {
       const s=parseInt(sStr), start=s===1?1:7, end=s===1?6:12;
       return all.filter(m=>{ const mo=parseInt(m.split('-')[1]); return m.startsWith(yr) && mo>=start && mo<=end; });
     }
+    case 'rango': {
+      const [from, to] = v.split('|');
+      const fromMes = from ? from.substring(0,7) : null;
+      const toMes   = to   ? to.substring(0,7)   : null;
+      return all.filter(m => {
+        if(fromMes && m < fromMes) return false;
+        if(toMes   && m > toMes)   return false;
+        return true;
+      });
+    }
   }
   return null;
 }
@@ -2506,11 +2539,16 @@ function applyDF(arr) {
 function getPeriodLabel() {
   if(datePeriod.type==='all' || !datePeriod.value) return DATA.periodo;
   const v = datePeriod.value;
+  const fmtDate = d => d ? d.split('-').reverse().join('/') : '?';
   switch(datePeriod.type) {
     case 'mes': { const [y,m]=v.split('-'); return `${MNAMES_LONG[m]} ${y}`; }
     case 'trimestre': { const [y,q]=v.split('-Q'); return `Q${q} ${y}`; }
     case 'semestre':  { const [y,s]=v.split('-S'); return `Semestre ${s} ${y}`; }
     case 'año':       return `Año ${v}`;
+    case 'rango': {
+      const [from, to] = v.split('|');
+      return `${fmtDate(from)} – ${fmtDate(to)}`;
+    }
   }
   return DATA.periodo;
 }
@@ -2518,7 +2556,38 @@ function getPeriodLabel() {
 function setPType(type) {
   datePeriod = {type, value:null};
   document.querySelectorAll('.pchip').forEach(c => c.classList.toggle('active', c.dataset.pt===type));
+  // Mostrar/ocultar date range picker
+  const picker = document.getElementById('rango-picker');
+  const pvals  = document.getElementById('pvals');
+  const divider= document.getElementById('pdivider');
+  if(type === 'rango') {
+    picker.style.display = 'flex';
+    pvals.style.display  = 'none';
+    divider.style.display = 'none';
+    // Valores por defecto: primer día del mes actual → hoy
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const firstOfMonth = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
+    const fromEl = document.getElementById('rango-from');
+    const toEl   = document.getElementById('rango-to');
+    if(fromEl && !fromEl.value) fromEl.value = firstOfMonth;
+    if(toEl   && !toEl.value)   toEl.value   = todayStr;
+  } else {
+    picker.style.display = 'none';
+    pvals.style.display  = 'flex';
+  }
   renderPeriodOptions();
+  refresh();
+}
+
+function applyRango() {
+  const from = document.getElementById('rango-from')?.value;
+  const to   = document.getElementById('rango-to')?.value;
+  if(!from && !to) return;
+  datePeriod = {type:'rango', value:`${from||''}|${to||''}`};
+  const lbl = getPeriodLabel();
+  const ind = document.getElementById('period-indicator');
+  if(ind){ ind.innerHTML = '&#128197; '+lbl; ind.style.display='inline'; }
   refresh();
 }
 
@@ -2535,6 +2604,12 @@ function renderPeriodOptions() {
 
   if(datePeriod.type==='all') {
     container.innerHTML=''; divider.style.display='none'; indicator.style.display='none';
+    return;
+  }
+  if(datePeriod.type==='rango') {
+    container.innerHTML=''; divider.style.display='none';
+    indicator.style.display = datePeriod.value ? 'inline' : 'none';
+    if(datePeriod.value) indicator.innerHTML = '&#128197; '+getPeriodLabel();
     return;
   }
   divider.style.display='inline';
