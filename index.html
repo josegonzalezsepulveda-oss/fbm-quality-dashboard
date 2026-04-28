@@ -2494,6 +2494,12 @@ function noData(wrapId, msg='Sin datos para el período seleccionado') {
   const w = document.getElementById(wrapId);
   if(w) w.innerHTML = `<div class="no-data">&#128226; ${msg}</div>`;
 }
+function ensureCanvas(canvasId, wrapId, height) {
+  if (!document.getElementById(canvasId)) {
+    const w = document.getElementById(wrapId);
+    if (w) w.innerHTML = `<canvas id="${canvasId}"${height ? ` height="${height}"` : ''}></canvas>`;
+  }
+}
 
 // Registrar plugin datalabels (desactivado globalmente, activar por chart)
 Chart.register(ChartDataLabels);
@@ -2735,6 +2741,7 @@ function renderVolumen() {
   document.getElementById('sub-volumen').textContent = `Desglose por tipo · ${lbl}`;
   document.getElementById('badge-volumen').textContent = datePeriod.type==='all'?'Q1-Q2':lbl;
 
+  ensureCanvas('ch-volumen','wrap-volumen',240);
   ch['volumen'] = new Chart(document.getElementById('ch-volumen'),{
     type:'bar', data:{labels:fs,datasets},
     options:{...CD, scales:{
@@ -2762,6 +2769,7 @@ function renderTendencia() {
   const labels = meses.map(m=>{ const r=DATA.tendencia.find(d=>d.mes===m); return r?r.mes_corto:m; });
   document.getElementById('badge-tend').textContent = getPeriodLabel();
 
+  ensureCanvas('ch-tendencia','wrap-tendencia',240);
   ch['tendencia'] = new Chart(document.getElementById('ch-tendencia'),{
     type:'line',
     data:{labels, datasets:fs.map(s=>({
@@ -2788,6 +2796,7 @@ function renderImplicados() {
     sin: data.filter(d=>d.site===s).reduce((a,d)=>a+(d.sin_implicados||0),0),
   })).filter(d=>d.con+d.sin>0);
 
+  ensureCanvas('ch-implicados','wrap-implicados',240);
   ch['implicados'] = new Chart(document.getElementById('ch-implicados'),{
     type:'bar',
     data:{labels:agg.map(d=>d.site), datasets:[
@@ -2813,6 +2822,10 @@ function renderMedidas() {
   const activos = Object.keys(tots).filter(e=>tots[e]>0);
   const total = activos.reduce((s,e)=>s+tots[e],0);
 
+  if (!document.getElementById('ch-medidas')) {
+    document.getElementById('wrap-medidas').innerHTML =
+      '<div class="donut-chart"><canvas id="ch-medidas"></canvas></div><div class="donut-legend" id="medidas-legend"></div>';
+  }
   ch['medidas'] = new Chart(document.getElementById('ch-medidas'),{
     type:'doughnut',
     data:{labels:activos, datasets:[{data:activos.map(e=>tots[e]),backgroundColor:activos.map(e=>estadoColor(e)),borderWidth:2,hoverOffset:6}]},
@@ -2843,6 +2856,7 @@ function renderCarpeta() {
     sin: data.filter(d=>d.site===s).reduce((a,d)=>a+(d.sin_carpeta||0),0),
   })).filter(d=>d.con+d.sin>0);
 
+  ensureCanvas('ch-carpeta','wrap-carpeta',240);
   ch['carpeta'] = new Chart(document.getElementById('ch-carpeta'),{
     type:'bar',
     data:{labels:agg.map(d=>d.site), datasets:[
@@ -2871,6 +2885,7 @@ function renderDivergencias() {
     backgroundColor:DIV_C[t]||'#999', borderRadius:4,
   })).filter(ds=>ds.data.some(v=>v>0));
 
+  ensureCanvas('ch-divergencias','wrap-divergencias',240);
   ch['divergencias'] = new Chart(document.getElementById('ch-divergencias'),{
     type:'bar', data:{labels:fs,datasets},
     options:{...CD, scales:{
@@ -2934,6 +2949,7 @@ function renderPendientes() {
   })).filter(ds=>ds.data.some(v=>v>0));
 
   if(!datasets.length){noData('wrap-pendientes','Sin pendientes en este período');return;}
+  ensureCanvas('ch-pendientes','wrap-pendientes',240);
   ch['pendientes'] = new Chart(document.getElementById('ch-pendientes'),{
     type:'bar', data:{labels:fs,datasets},
     options:{...CD, scales:{
@@ -2951,20 +2967,20 @@ function renderResumen() {
   const divD  = applyTF(applyDF(DATA.divergencias));
 
   const rows = fs.map(s=>{
-    const vol  = volD.filter(d=>d.site===s).reduce((a,d)=>a+d.total,0);
-    const cI   = implD.filter(d=>d.site===s).reduce((a,d)=>a+(d.con_implicados||0),0);
-    const cC   = carpD.filter(d=>d.site===s).reduce((a,d)=>a+(d.con_carpeta||0),0);
-    const tC   = carpD.filter(d=>d.site===s).reduce((a,d)=>a+(d.total||0),0);
-    const divs = divD.filter(d=>d.site===s).reduce((a,d)=>a+d.total,0);
-    const pI   = vol?Math.round(cI*100/vol):0;
-    const pC   = tC?Math.round(cC*100/tC):0;
-    const dSt  = divs===0?'<span class="status-ok">&#10003; OK</span>':divs<10?`<span class="status-warn">&#9651; ${divs}</span>`:`<span class="status-err">&#9888; ${divs}</span>`;
-    return {s,vol,cI,pI,cC,pC,divs,dSt};
+    const vol   = volD.filter(d=>d.site===s).reduce((a,d)=>a+d.total,0);
+    const cI    = implD.filter(d=>d.site===s).reduce((a,d)=>a+(d.con_implicados||0),0);
+    const cC    = carpD.filter(d=>d.site===s).reduce((a,d)=>a+(d.con_carpeta||0),0);
+    const tCden = carpD.filter(d=>d.site===s).reduce((a,d)=>a+(d.total||0),0);
+    const divs  = divD.filter(d=>d.site===s).reduce((a,d)=>a+d.total,0);
+    const pI    = vol?Math.round(cI*100/vol):0;
+    const pC    = tCden?Math.round(cC*100/tCden):0;
+    const dSt   = divs===0?'<span class="status-ok">&#10003; OK</span>':divs<10?`<span class="status-warn">&#9651; ${divs}</span>`:`<span class="status-err">&#9888; ${divs}</span>`;
+    return {s,vol,cI,pI,cC,pC,tCden,divs,dSt};
   });
 
   const bar=(pct,col)=>`<div class="mini-prog" style="width:80px"><span style="width:${pct}%;background:${col}"></span></div>`;
-  const tV=rows.reduce((s,r)=>s+r.vol,0), tI=rows.reduce((s,r)=>s+r.cI,0), tC=rows.reduce((s,r)=>s+r.cC,0), tD=rows.reduce((s,r)=>s+r.divs,0);
-  const tPI=tV?Math.round(tI*100/tV):0, tPC=tV?Math.round(tC*100/tV):0;
+  const tV=rows.reduce((s,r)=>s+r.vol,0), tI=rows.reduce((s,r)=>s+r.cI,0), tC=rows.reduce((s,r)=>s+r.cC,0), tTC=rows.reduce((s,r)=>s+r.tCden,0), tD=rows.reduce((s,r)=>s+r.divs,0);
+  const tPI=tV?Math.round(tI*100/tV):0, tPC=tTC?Math.round(tC*100/tTC):0;
 
   document.getElementById('tbl-resumen').innerHTML=`
   <table class="tbl">
